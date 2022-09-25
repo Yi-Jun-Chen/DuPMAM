@@ -62,15 +62,13 @@ class LAB(nn.Module):
         self.bn2 = nn.BatchNorm2d(self.size3)
         self.bn3 = nn.BatchNorm2d(1)
 
-        self.keyconv = nn.Sequential(nn.Conv2d(self.size1, self.size3, kernel_size=1, bias=False),
+        self.keyconv = nn.Sequential(nn.Conv2d(self.size1, self.size3, kernel_size=1, bias=False), # The query vector of attetion
                                    self.bn1,
                                    nn.LeakyReLU(negative_slope=0.2))
-
-
-        self.valconv = nn.Sequential(nn.Conv2d(self.size2, self.size3, kernel_size=1, bias=False),
+        self.valconv = nn.Sequential(nn.Conv2d(self.size2, self.size3, kernel_size=1, bias=False), # The value vector of attention
                                    self.bn2,
                                    nn.LeakyReLU(negative_slope=0.2))
-        self.scoconv = nn.Sequential(nn.Conv2d(self.size3, 1, kernel_size=1, bias=False),
+        self.scoconv = nn.Sequential(nn.Conv2d(self.size3, 1, kernel_size=1, bias=False), # Attention scores
                                    self.bn3,
                                    nn.LeakyReLU(negative_slope=0.2))
 
@@ -104,16 +102,15 @@ class GAB(nn.Module):
 
     def forward(self,x_query,x_key):
         values =  F.leaky_relu(self.bn1(self.Linear1(x_key).transpose(2, 1).contiguous()).transpose(2, 1).contiguous(),negative_slope=0.2)
-        
-        values = self.dp1(values)
-        querys = x_query.unsqueeze(1)
+        values = self.dp1(values) # The value vector
+        querys = x_query.unsqueeze(1) # The query vector
         features = values + querys
         scores = F.leaky_relu(self.bn2(self.Linear2(features).transpose(2, 1).contiguous()).transpose(2, 1).contiguous(),negative_slope=0.2)
         scores = self.dp2(scores)
         scores = F.leaky_relu(self.bn3(self.Linear3(scores).transpose(2, 1).contiguous()).transpose(2, 1).contiguous(),negative_slope=0.2)
         scores = self.dp3(scores)
         scores = F.leaky_relu(self.bn4(self.Linear4(scores).transpose(2, 1).contiguous()).transpose(2, 1).contiguous(),negative_slope=0.2)
-        scores = self.dp4(scores)
+        scores = self.dp4(scores) # Attention score
         scores = scores.squeeze(-1)
         scores = F.softmax(scores,dim=1)
         scores = scores.unsqueeze(-1).repeat(1, 1, 2048)
