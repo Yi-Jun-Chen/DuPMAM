@@ -51,7 +51,7 @@ def atten_get_graph_feature(x, k=20, idx=None, firstlayer=False):
         feature = torch.cat((feature-x, x), dim=3).permute(0, 3, 1, 2).contiguous()
     return x_ver, feature,x_glo
 
-class LAB(nn.Module):
+class LAB(nn.Module): # Local Attention Block
     def __init__(self, size1, size2, size3):
         super(LAB,self).__init__()
         self.size1 = size1
@@ -82,7 +82,7 @@ class LAB(nn.Module):
         feature = torch.sum(feature,dim=-1)
         return feature
 
-class GAB(nn.Module):
+class GAB(nn.Module): # Global Attention Block
     def __init__(self):
         super(GAB,self).__init__()
         self.bn1 = nn.BatchNorm1d(2048)
