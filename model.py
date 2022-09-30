@@ -45,7 +45,7 @@ def atten_get_graph_feature(x, k=20, idx=None, firstlayer=False):
     DEd1 = feature-x
     DEd2 = DEd1.mul(DEd1)
     DEd3 = torch.sum(DEd2,dim=-1,keepdim=True)
-    if firstlayer == True:
+    if firstlayer == True:# HPE strategy
         feature = torch.cat(( DEd3, feature-x, x, feature ), dim=3).permute(0, 3, 1, 2).contiguous()
     else:
         feature = torch.cat((feature-x, x), dim=3).permute(0, 3, 1, 2).contiguous()
@@ -130,10 +130,10 @@ class PointFormer(nn.Module):
         self.GlobalAtten = GAB()
         
         self.linear1 = nn.Linear(args.emb_dims*2, 512, bias=False)
-        self.bn6 = nn.BatchNorm1d(512)
+        self.bn1 = nn.BatchNorm1d(512)
         self.dp1 = nn.Dropout(p=args.dropout)
         self.linear2 = nn.Linear(512, 256)
-        self.bn7 = nn.BatchNorm1d(256)
+        self.bn2 = nn.BatchNorm1d(256)
         self.dp2 = nn.Dropout(p=args.dropout)
         self.linear3 = nn.Linear(256, output_channels)
 
@@ -156,9 +156,9 @@ class PointFormer(nn.Module):
         x = x.transpose(2,1).contiguous()
         x = self.GlobalAtten(x_glo, x)
      
-        x = F.leaky_relu(self.bn6(self.linear1(x)), negative_slope=0.2)
+        x = F.leaky_relu(self.bn1(self.linear1(x)), negative_slope=0.2)
         x = self.dp1(x)
-        x = F.leaky_relu(self.bn7(self.linear2(x)), negative_slope=0.2)
+        x = F.leaky_relu(self.bn2(self.linear2(x)), negative_slope=0.2)
         x = self.dp2(x)
         x = self.linear3(x)
 
