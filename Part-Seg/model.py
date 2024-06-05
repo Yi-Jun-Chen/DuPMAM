@@ -214,7 +214,7 @@ class GAB(nn.Module):
         #feature = x + feature
         return feature
 
-class DuPPAM(nn.Module):
+class DuPMAM(nn.Module):
     def __init__(self, args, seg_num_all):
         super(DuPPAM, self).__init__()
         self.args = args
