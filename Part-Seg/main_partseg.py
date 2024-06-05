@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 from data import ShapeNetPart
-from model import DuPPAM
+from model import DuPMAM
 import numpy as np
 from torch.utils.data import DataLoader
 from util import cal_loss, IOStream
@@ -80,7 +80,7 @@ def train(args, io):
     #Try to load models
     seg_num_all = train_loader.dataset.seg_num_all
     seg_start_index = train_loader.dataset.seg_start_index
-    model = DuPPAM(args, seg_num_all).to(device)
+    model = DuPMAM(args, seg_num_all).to(device)
  
     print(str(model))
 
@@ -232,7 +232,7 @@ def test(args, io):
     seg_num_all = test_loader.dataset.seg_num_all
     seg_start_index = test_loader.dataset.seg_start_index
     partseg_colors = test_loader.dataset.partseg_colors
-    model = DuPPAM(args, seg_num_all).to(device)
+    model = DuPMAM(args, seg_num_all).to(device)
 
     model = nn.DataParallel(model)
     model.load_state_dict(torch.load('outputs/' + args.exp_name + '/models/model.t7'),strict=False)
